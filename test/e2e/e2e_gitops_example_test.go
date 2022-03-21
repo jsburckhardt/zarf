@@ -12,16 +12,20 @@ import (
 )
 
 func TestGitopsExample(t *testing.T) {
+	defer e2e.cleanupAfterTest(t)
+
 	// run `zarf init`
 	output, err := e2e.execZarfCommand("init", "--confirm", "--components=gitops-service")
 	require.NoError(t, err, output)
 
+	path := fmt.Sprintf("../../build/zarf-package-gitops-service-data-%s.tar.zst", e2e.arch)
+
 	// Deploy the gitops example
-	output, err = e2e.execZarfCommand("package", "deploy", "../../build/zarf-package-gitops-service-data.tar.zst", "--confirm")
+	output, err = e2e.execZarfCommand("package", "deploy", path, "--confirm")
 	require.NoError(t, err, output)
 
 	// Create a tunnel to the git resources
-	err = e2e.execZarfBackgroundCommand("connect", "git")
+	err = e2e.execZarfBackgroundCommand("connect", "git", "--cli-only")
 	assert.NoError(t, err, "unable to establish tunnel to git")
 
 	// Check for full git repo mirror (foo.git) from https://github.com/stefanprodan/podinfo.git
@@ -43,7 +47,7 @@ func TestGitopsExample(t *testing.T) {
 	expectedTag := "v0.15.0\n"
 	err = os.Chdir("mirror__github.com__defenseunicorns__zarf")
 	assert.NoError(t, err)
-	gitOutput, err = exec.Command("git", "tag").Output()
+	gitOutput, _ = exec.Command("git", "tag").Output()
 	assert.Equal(t, expectedTag, string(gitOutput), "Expected tag should match output")
 
 	// Check for correct commits
@@ -62,6 +66,4 @@ func TestGitopsExample(t *testing.T) {
 
 	err = os.Chdir("..")
 	assert.NoError(t, err, "unable to change directories back to blah blah blah")
-
-	e2e.cleanupAfterTest(t)
 }

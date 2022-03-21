@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -9,13 +10,16 @@ import (
 )
 
 func TestDataInjection(t *testing.T) {
+	defer e2e.cleanupAfterTest(t)
 
 	// run `zarf init`
 	output, err := e2e.execZarfCommand("init", "--confirm", "-l=trace")
 	require.NoError(t, err, output)
 
+	path := fmt.Sprintf("../../build/zarf-package-data-injection-demo-%s.tar", e2e.arch)
+
 	// Deploy the data injection example
-	output, err = e2e.execZarfCommand("package", "deploy", "../../build/zarf-package-data-injection-demo.tar", "--confirm", "-l=trace")
+	output, err = e2e.execZarfCommand("package", "deploy", path, "--confirm", "-l=trace")
 	require.NoError(t, err, output)
 
 	// Test to confirm the root file was placed
@@ -40,6 +44,4 @@ func TestDataInjection(t *testing.T) {
 	}
 	assert.NoError(t, err)
 	assert.Contains(t, execStdOut, "this-is-an-example-file.txt")
-
-	e2e.cleanupAfterTest(t)
 }
