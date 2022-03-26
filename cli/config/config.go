@@ -28,9 +28,6 @@ const (
 	ZarfRegistryPullUser   = "zarf-pull"
 	ZarfRegistry           = IPV4Localhost + ":45001"
 
-	ZarfSeedTypeCLIInject         = "cli-inject"
-	ZarfSeedTypeInClusterRegistry = "in-cluster-registry"
-
 	ZarfConnectLabelName             = "zarf.dev/connect-name"
 	ZarfConnectAnnotationDescription = "zarf.dev/connect-description"
 	ZarfConnectAnnotationUrl         = "zarf.dev/connect-url"
@@ -61,6 +58,11 @@ func IsZarfInitConfig() bool {
 }
 
 func GetArch() string {
+	// If user-overridden then reflect that
+	if DeployOptions.Architecture != "" {
+		return DeployOptions.Architecture
+	}
+
 	// If CLI-orverriden then reflect that
 	if CliArch != "" {
 		return CliArch
@@ -148,8 +150,9 @@ func GetState() types.ZarfState {
 	return state
 }
 
+// @JPERRY I'm a little confused why this is called GetRegistry.. what is using this?
 func GetRegistry() string {
-	return fmt.Sprintf("%s:%s", IPV4Localhost, state.Registry.NodePort)
+	return fmt.Sprintf("%s:%s", IPV4Localhost, state.NodePort)
 }
 
 func LoadConfig(path string) error {

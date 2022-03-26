@@ -75,8 +75,8 @@ func (values Values) Apply(path string) {
 	mappings := map[string]string{
 		"STORAGE_CLASS":      values.state.StorageClass,
 		"SEED_REGISTRY":      values.seedRegistry,
-		"REGISTRY":           values.registry,
-		"REGISTRY_NODEPORT":  values.state.Registry.NodePort,
+		"REGISTRY":           values.registry, //@JPERRY when is registry used?
+		"NODEPORT":           values.state.NodePort,
 		"REGISTRY_SECRET":    values.secret.registrySecret,
 		"REGISTRY_AUTH_PUSH": values.secret.registryPush,
 		"REGISTRY_AUTH_PULL": values.secret.registryPull,
